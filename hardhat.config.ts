@@ -9,6 +9,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "hardhat-preprocessor";
+import "hardhat-deploy";
 
 // Configure remappings.
 // https://book.getfoundry.sh/config/hardhat
@@ -48,16 +49,41 @@ const config: HardhatUserConfig = {
     verificationNetwork: {
       url: process.env.NETWORK_RPC ?? "",
     },
+    goerli: {
+      url: process.env.GOERLI_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY as string],
+    },
+    ganache: {
+      url: "HTTP://127.0.0.1:7545",
+      accounts: [process.env.PRIVATE_KEY as string],
+    },
+    mainnet: {
+      url: process.env.MAINNET_RPC_URL,
+      accounts: [process.env.PRIVATE_KEY as string],
+    },
+    polygon: {
+      url: "https://rpc-mainnet.maticvigil.com/",
+      accounts: [process.env.PRIVATE_KEY as string],
+    },
+    mumbai: {
+      url: "https://rpc-mumbai.maticvigil.com/",
+      accounts: [process.env.PRIVATE_KEY as string],
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
   },
   etherscan: {
-    apiKey: process.env.EXPLORER_API_KEY,
+    apiKey: {
+      goerli: process.env.ETHERSCAN_API_KEY as string,
+      mainnet: process.env.ETHERSCAN_API_KEY as string,
+      polygon: process.env.POLYGONSCAN_API_KEY as string,
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY as string,
+    },
   },
   preprocess: {
-    eachLine: (hre) => ({
+    eachLine: () => ({
       transform: (line: string) => {
         if (line.match(/ from "/i)) {
           getRemappings().forEach(([find, replace]: string[]) => {
@@ -69,6 +95,12 @@ const config: HardhatUserConfig = {
         return line;
       },
     }),
+  },
+  namedAccounts: {
+    deployer: {
+      default: 0, // here this will by default take the first account as deployer
+      1: 0, // similarly on mainnet it will take the first account as deployer. Note though that depending on how hardhat network are configured, the account 0 on one network can be different than on another
+    },
   },
   // specify separate cache for hardhat, since it could possibly conflict with foundry's
   paths: { sources: "./src", cache: "./hh-cache" },

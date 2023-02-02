@@ -12,11 +12,11 @@ import { PublicDrop } from "../src/lib/SeaDropStructs.sol";
 contract DeployAndConfigureExampleToken is Script {
     // Addresses
     address seadrop = 0x00005EA00Ac477B1030CE78506496e8C2dE24bf5;
-    address creator = 0x26faf8AE18d15Ed1CA0563727Ad6D4Aa02fb2F80;
+    address creator = 0x37d8B0123D013ad824B14D8e6a946da425B551CD;
     address feeRecipient = 0x0000a26b00c1F0DF003000390027140000fAa719;
 
     // Token config
-    uint256 maxSupply = 100;
+    uint256 maxSupply = 10000;
 
     // Drop config
     uint16 feeBps = 500; // 5%
@@ -32,8 +32,8 @@ contract DeployAndConfigureExampleToken is Script {
         // This example uses ERC721SeaDrop. For separate Owner and
         // Administrator privileges, use ERC721PartnerSeaDrop.
         ERC721SeaDrop token = new ERC721SeaDrop(
-            "My Example Token",
-            "ExTKN",
+            "DagenAvatar",
+            "DA",
             allowedSeadrop
         );
 
@@ -42,13 +42,21 @@ contract DeployAndConfigureExampleToken is Script {
 
         // Configure the drop parameters.
         token.updateCreatorPayoutAddress(seadrop, creator);
+
+        token.setContractURI("https://demo.dagen.life/creature/contract.json");
+        token.setBaseURI("https://demo.dagen.life/creature/");
+        token.updateDropURI(
+            seadrop,
+            "https://demo.dagen.life/creature/drop.json"
+        );
+
         token.updateAllowedFeeRecipient(seadrop, feeRecipient, true);
         token.updatePublicDrop(
             seadrop,
             PublicDrop(
                 mintPrice,
                 uint48(block.timestamp), // start time
-                uint48(block.timestamp) + 1000, // end time
+                uint48(block.timestamp + 30 days), // end time
                 maxTotalMintableByWallet,
                 feeBps,
                 true
